@@ -1,0 +1,61 @@
+.reportview-container, .main {
+    background: #ffadad;
+    color: #000000;
+}
+.sidebar .sidebar-content {
+    background: #f0f2f6;
+    color: #000000;
+}
+.stButton>button {
+    background-color: #0D62FE;
+    color: white;
+}
+.stTextInput>div>div>input {
+    color: #000000;
+    background-color: #ffffff;
+}
+.tTextArea>div>textarea {
+    color: #000000;
+    background-color: #ffffff;
+}
+label, .stTextInput>label, .stTextArea>label {
+    color: #000000;
+}
+h1, h2, h3, h4, h5, h6 {
+    color: #000000;
+}
+.sidebar .sidebar-content h2, .sidebar .sidebar-content h3, .sidebar .sidebar-content h4, .sidebar .sidebar-content h5, .sidebar .sidebar-content h6,
+.sidebar .sidebar-content label, .sidebar .sidebar-content .stTextInput>label, .sidebar .sidebar-content .stTextArea>label {
+    color: #000000;
+}
+.navbar {
+    overflow: hidden;
+    background-color: #000000;
+    position: fixed;
+    top: 0;
+    width: 100%;
+    z-index: 1000;
+}
+.navbar h1 {
+    float: left;
+    display: block;
+    color: #ffffff;
+    text-align: center;
+    padding: 14px 1x;
+    text-decoration: none;
+    font-size: 17px;
+    margin: 0;
+}
+.menu-bar {
+    background-color: #000000;
+    padding: 10px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+.menu-bar h1 {
+    color: #ffffff;
+    margin: 0;
+    font-size: 18px;
+    font-family: 'IBM Plex Sans', sans-serif;
+}
