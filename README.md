@@ -1,10 +1,11 @@
 ---
-title: WatsonX WebChat
-emoji: 🚀
+title: Chat With URL1
+emoji: 🌍
 colorFrom: pink
-colorTo: gray
-sdk: docker
-app_port: 8501  
+colorTo: yellow
+sdk: streamlit
+sdk_version: 1.40.2
+app_file: app.py
 pinned: false
 ---
 # WatsonX-WebChat
