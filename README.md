@@ -8,7 +8,7 @@ sdk_version: 1.40.2
 app_file: app.py
 pinned: false
 ---
-# WatsonX-WebChat
+# Chat With URL
 
 WatsonX-WebChat is a user-friendly web app that lets you chat with a web page! Just provide a URL, and it uses IBM Watson's language models to answer your questions based on the page's content. It combines smart retrieval techniques with AI for accurate and relevant answers.
 ![](assets/2024-05-29-12-05-51.png)
