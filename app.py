@@ -1,68 +1,83 @@
-import os
-from dotenv import load_dotenv
 import streamlit as st
-import webchat
-import utils
+import requests
 
-# URL of the hosted LLMs is hardcoded because at this time all LLMs share the same endpoint
-url = "https://us-south.ml.cloud.ibm.com"
+# Hardcoded credentials
+API_KEY = "Q2uZJDscw55ZJ6IGrpOyHw4c7RpkJyY-z6GKIH5Qj--s"
+PROJECT_ID = "8e75587d-5ef2-4d94-a5d1-9493d6145ac3"
+WATSONX_URL = "https://us-south.ml.cloud.ibm.com"
 
+# Initialize session state for credentials and URL
+if "watsonx_project_id" not in st.session_state:
+    st.session_state["watsonx_project_id"] = PROJECT_ID
+if "api_key" not in st.session_state:
+    st.session_state["api_key"] = API_KEY
+if "watsonx_url" not in st.session_state:
+    st.session_state["watsonx_url"] = WATSONX_URL
+
+# Watsonx LLM API Call
+def call_watsonx_llm(prompt):
+    url = f"{st.session_state['watsonx_url']}/v1/projects/{st.session_state['watsonx_project_id']}/generate"
+
+    headers = {
+        "Authorization": f"Bearer {st.session_state['api_key']}",
+        "Content-Type": "application/json"
+    }
+
+    payload = {
+        "input": prompt,
+        "model": "watsonx_model_name",  # Replace with your Watsonx LLM model name
+        "parameters": {
+            "temperature": 0.7,
+            "max_new_tokens": 100
+        }
+    }
+
+    try:
+        response = requests.post(url, json=payload, headers=headers)
+        response.raise_for_status()
+        return response.json()["generated_text"]
+    except requests.exceptions.RequestException as e:
+        return f"Error: {e}"
+
+# Function to set up the chat interface
+def setup_streamlit_chat():
+    if "messages" not in st.session_state:
+        st.session_state["messages"] = []
+
+    # Display chat messages from history
+    for message in st.session_state["messages"]:
+        with st.chat_message(message["role"]):
+            st.markdown(message["content"])
+
+    # Input box for user message
+    if prompt := st.chat_input("Type your message"):
+        # Add user message to chat history
+        st.session_state.messages.append({"role": "user", "content": prompt})
+
+        # Display user message in chat
+        with st.chat_message("user"):
+            st.markdown(prompt)
+
+        # Generate response from Watsonx LLM API
+        response = call_watsonx_llm(prompt)
+
+        # Add response to chat history
+        st.session_state.messages.append({"role": "assistant", "content": response})
+
+        # Display response in chat
+        with st.chat_message("assistant"):
+            st.markdown(response)
+
+# Main function to render the chat interface
 def main():
-    # Load environment variables from .env file
-    load_dotenv()
-    api_key = os.getenv("api_key")
-    project_id = os.getenv("project_id")
+    st.title("Watsonx LLM Chat Interface")
+    st.sidebar.title("Settings")
+    st.sidebar.write(f"Project ID: {st.session_state['watsonx_project_id']}")
+    st.sidebar.write(f"API Key: {st.session_state['api_key']}")
+    st.sidebar.write(f"Watsonx URL: {st.session_state['watsonx_url']}")
 
-    if not api_key or not project_id:
-        st.error("Missing API Key or Project ID in the .env file.")
-        return
-
-    st.set_page_config(layout="wide", page_title="RAG Web Demo", page_icon="")
-    utils.load_css("styles.css")
-    
-    # Streamlit app title with style
-    st.markdown("""
-        <div class="menu-bar">
-            <h1>IBM watsonx.ai - webchat</h1>
-        </div>
-        <div style="margin-top: 20px;"><p>Insert the website you want to chat with and ask your question.</p></div>
-    """, unsafe_allow_html=True)
-    
-    # Sidebar for information
-    st.sidebar.header("Information")
-    st.sidebar.markdown("Credentials are securely loaded from your `.env` file. Ensure the file is properly configured.", unsafe_allow_html=True)
-    st.sidebar.markdown("<hr>", unsafe_allow_html=True)
-    
-    # Main input area
-    user_url = st.text_input('Provide a URL')
-    # UI component to enter the question
-    question = st.text_area('Question', height=100)
-    button_clicked = st.button("Answer the question")
-    st.markdown("<hr>", unsafe_allow_html=True)
-    st.subheader("Response")
-    
-    collection_name = "base"
-    client = utils.chromadb_client()
-    
-    if button_clicked and user_url:
-        # Invoke the LLM when the button is clicked
-        response = webchat.answer_questions_from_web(api_key, project_id, user_url, question, collection_name, client)
-        st.write(response)
-    else:
-        if not user_url and button_clicked:
-            st.warning("Please provide a URL to proceed.")
-  
-    # Cleaning Vector Database
-    st.sidebar.markdown("<hr>", unsafe_allow_html=True)
-    st.sidebar.header("Memory")
-    clean_button_clicked = st.sidebar.button("Clean Memory")
-    if clean_button_clicked:
-        if collection_name:
-            utils.clear_collection(collection_name, client)
-            st.sidebar.success("Memory cleared successfully!")
-            print("Memory cleared successfully!")
-        else:
-            st.sidebar.error("Collection name is not defined or empty.")
+    # Set up the chat interface
+    setup_streamlit_chat()
 
 if __name__ == "__main__":
     main()
